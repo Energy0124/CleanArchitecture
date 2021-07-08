@@ -137,11 +137,18 @@ namespace BlazorHero.CleanArchitecture.Infrastructure.Services.Identity
 
         private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
         {
-            var token = new JwtSecurityToken(
-               claims: claims,
-               expires: DateTime.UtcNow.AddDays(2),
-               signingCredentials: signingCredentials);
+            // var token = new JwtSecurityToken(
+            //    claims: claims,
+            //    expires: DateTime.UtcNow.AddDays(2),
+            //    signingCredentials: signingCredentials);
             var tokenHandler = new JwtSecurityTokenHandler();
+            // use JwtSecurityTokenHandler.CreateJwtSecurityToken to create token
+            // so that JwtSecurityTokenHandler.OutboundClaimTypeMap will be used to shorten the claim types key
+            // reducing the size of token
+            var token = tokenHandler.CreateJwtSecurityToken(
+                subject: new ClaimsIdentity(claims),
+                expires: DateTime.UtcNow.AddDays(2),
+                signingCredentials: signingCredentials);
             var encryptedToken = tokenHandler.WriteToken(token);
             return encryptedToken;
         }
