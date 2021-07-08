@@ -24,7 +24,7 @@ namespace BlazorHero.CleanArchitecture.Server
                 {
                     var context = services.GetRequiredService<BlazorHeroContext>();
 
-                    if (context.Database.IsSqlServer())
+                    // if (context.Database.IsNpgsql())
                     {
                         context.Database.Migrate();
                     }
