@@ -41,6 +41,7 @@ namespace BlazorHero.CleanArchitecture.Server
             services.AddCurrentUserService();
             services.AddSerialization();
             services.AddDatabase(_configuration);
+            services.AddDistributedCache(_configuration, CurrentEnvironment);
             services.AddServerStorage(); //TODO - should implement ServerStorageProvider to work correctly!
             services.AddScoped<ServerPreferenceManager>();
             services.AddServerLocalization();
@@ -70,6 +71,7 @@ namespace BlazorHero.CleanArchitecture.Server
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IStringLocalizer<Startup> localizer)
         {
+            CurrentEnvironment = env;
             app.UseCors();
             app.UseExceptionHandling(env);
             app.UseHttpsRedirection();
@@ -94,5 +96,7 @@ namespace BlazorHero.CleanArchitecture.Server
             app.ConfigureSwagger();
             app.Initialize(_configuration);
         }
+
+        public IWebHostEnvironment CurrentEnvironment { get; set; }
     }
 }

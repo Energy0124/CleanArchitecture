@@ -4,6 +4,7 @@ using BlazorHero.CleanArchitecture.Shared.Constants.Storage;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -67,48 +68,64 @@ namespace BlazorHero.CleanArchitecture.Client.Infrastructure.Authentication
         private IEnumerable<Claim> GetClaimsFromJwt(string jwt)
         {
             var claims = new List<Claim>();
-            var payload = jwt.Split('.')[1];
-            var jsonBytes = ParseBase64WithoutPadding(payload);
-            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-
-            if (keyValuePairs != null)
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(jwt);
+            var claimsFromJwt = jwtSecurityToken.Claims;
+            foreach (var claim in claimsFromJwt)
             {
-                keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
-
-                if (roles != null)
+                // map the claim type to enum type
+                if (tokenHandler.InboundClaimTypeMap.TryGetValue(claim.Type, out var mappedType))
                 {
-                    if (roles.ToString().Trim().StartsWith("["))
-                    {
-                        var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
-
-                        claims.AddRange(parsedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-                    }
-                    else
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
-                    }
-
-                    keyValuePairs.Remove(ClaimTypes.Role);
+                    claims.Add(new Claim(mappedType, claim.Value));
                 }
-
-                keyValuePairs.TryGetValue(ApplicationClaimTypes.Permission, out var permissions);
-                if (permissions != null)
+                else
                 {
-                    if (permissions.ToString().Trim().StartsWith("["))
-                    {
-                        var parsedPermissions = JsonSerializer.Deserialize<string[]>(permissions.ToString());
-                        claims.AddRange(parsedPermissions.Select(permission => new Claim(ApplicationClaimTypes.Permission, permission)));
-                    }
-                    else
-                    {
-                        claims.Add(new Claim(ApplicationClaimTypes.Permission, permissions.ToString()));
-                    }
-                    keyValuePairs.Remove(ApplicationClaimTypes.Permission);
+                    claims.Add(claim);
                 }
-
-                claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
             }
             return claims;
+            //
+            // var payload = jwt.Split('.')[1];
+            // var jsonBytes = ParseBase64WithoutPadding(payload);
+            // var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+            // if (keyValuePairs != null)
+            // {
+            //     keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
+            //
+            //     if (roles != null)
+            //     {
+            //         if (roles.ToString().Trim().StartsWith("["))
+            //         {
+            //             var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
+            //
+            //             claims.AddRange(parsedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+            //         }
+            //         else
+            //         {
+            //             claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+            //         }
+            //
+            //         keyValuePairs.Remove(ClaimTypes.Role);
+            //     }
+            //
+            //     keyValuePairs.TryGetValue(ApplicationClaimTypes.Permission, out var permissions);
+            //     if (permissions != null)
+            //     {
+            //         if (permissions.ToString().Trim().StartsWith("["))
+            //         {
+            //             var parsedPermissions = JsonSerializer.Deserialize<string[]>(permissions.ToString());
+            //             claims.AddRange(parsedPermissions.Select(permission => new Claim(ApplicationClaimTypes.Permission, permission)));
+            //         }
+            //         else
+            //         {
+            //             claims.Add(new Claim(ApplicationClaimTypes.Permission, permissions.ToString()));
+            //         }
+            //         keyValuePairs.Remove(ApplicationClaimTypes.Permission);
+            //     }
+            //
+            //     claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+            // }
+            // return claims;
         }
 
         private byte[] ParseBase64WithoutPadding(string base64)
