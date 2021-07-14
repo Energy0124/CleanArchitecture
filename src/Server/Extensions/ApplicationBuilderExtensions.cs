@@ -46,6 +46,7 @@ namespace BlazorHero.CleanArchitecture.Server.Extensions
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
                 endpoints.MapHub<SignalRHub>(ApplicationConstants.SignalR.HubUrl);
+                endpoints.MapBlazorHub();
             });
 
         internal static IApplicationBuilder UseRequestLocalizationByCulture(this IApplicationBuilder app)

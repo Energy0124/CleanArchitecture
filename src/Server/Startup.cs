@@ -60,6 +60,7 @@ namespace BlazorHero.CleanArchitecture.Server
             services.AddExtendedAttributesValidators();
             services.AddExtendedAttributesHandlers();
             services.AddRazorPages();
+            services.AddServerSideBlazor();
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = new ApiVersion(1, 0);
@@ -75,6 +76,7 @@ namespace BlazorHero.CleanArchitecture.Server
             app.UseCors();
             app.UseExceptionHandling(env);
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
             app.UseMiddleware<ErrorHandlerMiddleware>();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
