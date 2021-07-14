@@ -44,7 +44,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using BlazorHero.CleanArchitecture.Server.Events;
+using BlazorHero.CleanArchitecture.Server.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using StackExchange.Redis;
 
@@ -255,7 +255,7 @@ namespace BlazorHero.CleanArchitecture.Server.Extensions
                     authentication.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     authentication.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(async bearer =>
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, async bearer =>
                 {
                     bearer.RequireHttpsMetadata = false;
                     bearer.SaveToken = true;
@@ -269,55 +269,7 @@ namespace BlazorHero.CleanArchitecture.Server.Extensions
                         ClockSkew = TimeSpan.Zero
                     };
                     bearer.EventsType = typeof(CustomJwtBearerEvents);
-//                     var localizer = await GetRegisteredServerLocalizerAsync<ServerCommonResources>(services);
-//                     bearer.Events = new JwtBearerEvents
-//                     {
-//                         OnAuthenticationFailed = c =>
-//                         {
-//                             if (c.Exception is SecurityTokenExpiredException)
-//                             {
-//                                 c.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-//                                 c.Response.ContentType = "application/json";
-//                                 var result = JsonConvert.SerializeObject(Result.Fail(localizer["The Token is expired."]));
-//                                 return c.Response.WriteAsync(result);
-//                             }
-//                             else
-//                             {
-// #if DEBUG
-//                                 c.NoResult();
-//                                 c.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-//                                 c.Response.ContentType = "text/plain";
-//                                 return c.Response.WriteAsync(c.Exception.ToString());
-// #else
-//                                 c.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-//                                 c.Response.ContentType = "application/json";
-//                                 var result = JsonConvert.SerializeObject(Result.Fail(localizer["An unhandled error has occurred."]));
-//                                 return c.Response.WriteAsync(result);
-// #endif
-//                             }
-//                         },
-//                         OnChallenge = context =>
-//                         {
-//                             context.HandleResponse();
-//                             if (!context.Response.HasStarted)
-//                             {
-//                                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-//                                 context.Response.ContentType = "application/json";
-//                                 var result = JsonConvert.SerializeObject(Result.Fail(localizer["You are not Authorized."]));
-//                                 return context.Response.WriteAsync(result);
-//                             }
-//
-//                             return Task.CompletedTask;
-//                         },
-//                         OnForbidden = context =>
-//                         {
-//                             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-//                             context.Response.ContentType = "application/json";
-//                             var result = JsonConvert.SerializeObject(Result.Fail(localizer["You are not authorized to access this resource."]));
-//                             return context.Response.WriteAsync(result);
-//                         },
-//                     };
-                });
+                }).AddJwtBearer();
             services.AddAuthorization(options =>
             {
                 // Here I stored necessary permissions/roles in a constant

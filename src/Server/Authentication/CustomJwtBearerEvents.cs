@@ -1,20 +1,18 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using BlazorHero.CleanArchitecture.Server.Localization;
 using BlazorHero.CleanArchitecture.Shared.Wrapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace BlazorHero.CleanArchitecture.Server.Events
+namespace BlazorHero.CleanArchitecture.Server.Authentication
 {
     internal class CustomJwtBearerEvents : JwtBearerEvents
     {
